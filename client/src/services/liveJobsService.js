@@ -115,66 +115,98 @@ function normalizeSkill(s) {
 }
 
 /**
- * Detects domain category from title or query
+ * Detects domain category from title or query (fallback)
  */
 function inferDomainFromTitle(title) {
   const t = (title || "").toLowerCase();
-  if (t.includes("data") || t.includes("machine learning") || t.includes("ai") || t.includes("ml") || t.includes("nlp") || t.includes("deep learning") || t.includes("analytics")) {
-    return "ai-data";
-  }
-  if (t.includes("cloud") || t.includes("devops") || t.includes("sre") || t.includes("infra") || t.includes("platform") || t.includes("kubernetes")) {
-    return "cloud-devops";
-  }
-  if (t.includes("mobile") || t.includes("android") || t.includes("ios") || t.includes("flutter") || t.includes("react native") || t.includes("swift") || t.includes("kotlin")) {
-    return "mobile";
-  }
-  if (t.includes("security") || t.includes("cyber") || t.includes("soc") || t.includes("penetration") || t.includes("threat") || t.includes("devsecops")) {
-    return "security";
-  }
-  if (t.includes("qa") || t.includes("test") || t.includes("sdet") || t.includes("automation") || t.includes("quality")) {
-    return "qa";
-  }
-  if (t.includes("java") || t.includes("spring") || t.includes("enterprise")) {
-    return "enterprise";
-  }
-  if (t.includes("frontend") || t.includes("ui") || t.includes("react") || t.includes("next") || t.includes("vue") || t.includes("angular") || t.includes("web designer")) {
-    return "frontend";
-  }
-  if (t.includes("design") || t.includes("ux") || t.includes("figma") || t.includes("product designer")) {
-    return "design";
-  }
-  if (t.includes("product") || t.includes("apm") || t.includes("product manager")) {
-    return "product";
-  }
-  if (t.includes("embedded") || t.includes("iot") || t.includes("firmware") || t.includes("hardware") || t.includes("c++") || t.includes("c/c++")) {
-    return "systems";
-  }
-  if (t.includes("backend") || t.includes("api") || t.includes("node") || t.includes("python") || t.includes("django") || t.includes("fastapi") || t.includes("golang") || t.includes("go")) {
-    return "backend";
-  }
+  if (t.includes("data") || t.includes("machine learning") || t.includes("ai") || t.includes("ml") || t.includes("nlp") || t.includes("deep learning") || t.includes("analytics")) return "ai-data";
+  if (t.includes("cloud") || t.includes("devops") || t.includes("sre") || t.includes("infra") || t.includes("platform") || t.includes("kubernetes")) return "cloud-devops";
+  if (t.includes("mobile") || t.includes("android") || t.includes("ios") || t.includes("flutter") || t.includes("swift") || t.includes("kotlin")) return "mobile";
+  if (t.includes("security") || t.includes("cyber") || t.includes("soc") || t.includes("penetration")) return "security";
+  if (t.includes("qa") || t.includes("test") || t.includes("sdet") || t.includes("automation")) return "qa";
+  if (t.includes("java") || t.includes("spring") || t.includes("enterprise")) return "enterprise";
+  if (t.includes("frontend") || t.includes("ui") || t.includes("react") || t.includes("next") || t.includes("vue") || t.includes("angular")) return "frontend";
+  if (t.includes("design") || t.includes("ux") || t.includes("figma")) return "design";
+  if (t.includes("product") || t.includes("apm")) return "product";
+  if (t.includes("embedded") || t.includes("iot") || t.includes("firmware") || t.includes("c++")) return "systems";
+  if (t.includes("backend") || t.includes("api") || t.includes("node") || t.includes("python") || t.includes("django") || t.includes("fastapi")) return "backend";
   return "fullstack";
 }
 
+// Skill → domain vote map: infers best domain from candidate's actual skills
+const SKILL_DOMAIN_VOTES = {
+  'python': 'ai-data', 'machinelearning': 'ai-data', 'deeplearning': 'ai-data',
+  'nlp': 'ai-data', 'pytorch': 'ai-data', 'tensorflow': 'ai-data',
+  'pandas': 'ai-data', 'scikitlearn': 'ai-data', 'datavisualization': 'ai-data',
+  'llms': 'ai-data', 'naturallanguageprocessing': 'ai-data',
+  'aws': 'cloud-devops', 'docker': 'cloud-devops', 'kubernetes': 'cloud-devops',
+  'cicdpipelines': 'cloud-devops', 'terraform': 'cloud-devops', 'linuxunix': 'cloud-devops',
+  'reactjs': 'frontend', 'nextjs': 'frontend', 'vuejs': 'frontend',
+  'angular': 'frontend', 'tailwindcss': 'frontend', 'html5': 'frontend',
+  'css3': 'frontend', 'redux': 'frontend', 'typescript': 'frontend',
+  'nodejs': 'backend', 'expressjs': 'backend', 'django': 'backend',
+  'fastapi': 'backend', 'springboot': 'backend', 'graphql': 'backend',
+  'postgresql': 'backend', 'mongodb': 'backend', 'redis': 'backend',
+  'java': 'enterprise', 'microservices': 'enterprise',
+  'cybersecurity': 'security',
+  'testingqa': 'qa',
+};
+
+// Domain → canonical required skills for job listings
+const DOMAIN_SKILLS = {
+  'ai-data':     ['Python', 'Machine Learning', 'Pandas', 'Natural Language Processing (NLP)', 'PyTorch', 'TensorFlow', 'Data Visualization', 'SQL'],
+  'cloud-devops':['AWS', 'Docker', 'Kubernetes', 'CI/CD Pipelines', 'Linux / Unix', 'Git & Version Control', 'Terraform'],
+  'mobile':      ['React.js', 'TypeScript', 'RESTful APIs', 'Git & Version Control', 'JavaScript'],
+  'security':    ['Cybersecurity & OAuth', 'Linux / Unix', 'Python', 'Docker', 'Git & Version Control'],
+  'enterprise':  ['Java', 'Spring Boot', 'Microservices', 'PostgreSQL', 'RESTful APIs', 'Git & Version Control'],
+  'frontend':    ['React.js', 'Next.js', 'TypeScript', 'Tailwind CSS', 'HTML5', 'CSS3', 'Redux', 'JavaScript'],
+  'backend':     ['Node.js', 'Express.js', 'PostgreSQL', 'MongoDB', 'RESTful APIs', 'Docker', 'Redis', 'GraphQL'],
+  'qa':          ['Testing & QA', 'JavaScript', 'Python', 'RESTful APIs', 'CI/CD Pipelines'],
+  'fullstack':   ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'JavaScript', 'TypeScript', 'RESTful APIs', 'Git & Version Control'],
+};
+
 /**
- * Generates dynamically matched real-time internships & jobs tailored
- * to the candidate's verified skills, target role, and location preferences across Indian cities.
+ * Infers best-fit domain from candidate's actual extracted skills (votes-based).
+ * Falls back to title-based inference.
+ */
+function inferDomainFromSkills(extractedSkills, targetJobTitle) {
+  const counts = {};
+  for (const skill of extractedSkills) {
+    const key = normalizeSkill(skill);
+    const domain = SKILL_DOMAIN_VOTES[key];
+    if (domain) counts[domain] = (counts[domain] || 0) + 1;
+  }
+  let bestDomain = null, bestCount = 0;
+  for (const [domain, count] of Object.entries(counts)) {
+    if (count > bestCount) { bestDomain = domain; bestCount = count; }
+  }
+  return bestDomain || inferDomainFromTitle(targetJobTitle);
+}
+
+/**
+ * Generates jobs matched to the candidate's actual resume skills.
+ * Only shows jobs where the candidate has at least 1 matching skill.
+ * Sorted by skill match % descending.
  */
 export function generateLiveJobs(params = {}) {
   const {
     targetJobTitle = 'Full Stack Software Engineer',
-    targetJobDescription = '',
     extractedSkills = [],
-    careerRecommendations = {},
     selectedLocation = 'All Locations',
     selectedType = 'all'
   } = params;
 
+  // Build normalized candidate skill set from actual resume
   const candidateSkillSet = new Set(
     (extractedSkills || []).map(s => normalizeSkill(s)).filter(Boolean)
   );
-  const targetDomain = inferDomainFromTitle(targetJobTitle);
 
-  // Active cities to generate jobs for
+  // Infer domain from actual skills — not just job title
+  const targetDomain = inferDomainFromSkills(extractedSkills, targetJobTitle);
+
+  // Required skills for jobs in this domain
+  const domainSkillPool = DOMAIN_SKILLS[targetDomain] || DOMAIN_SKILLS['fullstack'];
+
   const activeCities = (selectedLocation && selectedLocation !== 'All Locations' && selectedLocation !== 'Any')
     ? [selectedLocation]
     : Object.keys(INDIAN_TECH_HUBS);
@@ -182,11 +214,10 @@ export function generateLiveJobs(params = {}) {
   const jobs = [];
 
   activeCities.forEach((city) => {
-    const cityData = INDIAN_TECH_HUBS[city] || INDIAN_TECH_HUBS["Bengaluru"];
-    
-    // Filter domain companies located in this city
+    const cityData = INDIAN_TECH_HUBS[city] || INDIAN_TECH_HUBS['Bengaluru'];
+
     const domainCompanies = cityData.companies.filter(c => c.domains.includes(targetDomain));
-    const companyPool = domainCompanies.length > 0 ? domainCompanies : cityData.companies;
+    const companyPool = (domainCompanies.length > 0 ? domainCompanies : cityData.companies).slice(0, 2);
 
     companyPool.forEach((comp, idx) => {
       const isIntern = idx % 2 === 0;
@@ -195,45 +226,18 @@ export function generateLiveJobs(params = {}) {
       if (selectedType === 'internship' && !isIntern) return;
       if (selectedType === 'fulltime' && isIntern) return;
 
-      const title = isIntern
-        ? `${targetJobTitle} Intern`
-        : (idx === 1 ? `Associate / Junior ${targetJobTitle}` : `Senior / Lead ${targetJobTitle}`);
+      const title = isIntern ? `${targetJobTitle} Intern` : `${targetJobTitle} Engineer`;
+      const requiredSkills = domainSkillPool;
 
-      // Required skills based on domain
-      let requiredSkills = [];
-      if (targetDomain === 'ai-data') {
-        requiredSkills = ["Python", "SQL", "Pandas", "Scikit-Learn", "Machine Learning", "Data Visualization"];
-      } else if (targetDomain === 'cloud-devops') {
-        requiredSkills = ["AWS", "Docker", "Kubernetes", "CI/CD Pipelines", "Linux / Unix", "Git & Version Control"];
-      } else if (targetDomain === 'mobile') {
-        requiredSkills = ["React Native", "Flutter", "Swift", "Kotlin", "RESTful APIs", "Git & Version Control"];
-      } else if (targetDomain === 'security') {
-        requiredSkills = ["Cybersecurity & OAuth", "Linux / Unix", "Network Security", "Python", "Docker"];
-      } else if (targetDomain === 'enterprise') {
-        requiredSkills = ["Java", "Spring Boot", "Microservices", "PostgreSQL", "RESTful APIs", "Git & Version Control"];
-      } else if (targetDomain === 'frontend') {
-        requiredSkills = ["React.js", "Next.js", "TypeScript", "Tailwind CSS", "HTML5", "CSS3"];
-      } else if (targetDomain === 'backend') {
-        requiredSkills = ["Node.js", "Express.js", "PostgreSQL", "MongoDB", "RESTful APIs", "Docker"];
-      } else if (targetDomain === 'qa') {
-        requiredSkills = ["Testing & QA", "JavaScript", "Python", "RESTful APIs", "CI/CD Pipelines"];
-      } else if (targetDomain === 'design') {
-        requiredSkills = ["Figma", "UI/UX Design", "Wireframing", "Prototyping", "Design Systems"];
-      } else {
-        requiredSkills = ["React.js", "Node.js", "Express.js", "MongoDB", "JavaScript", "RESTful APIs"];
-      }
-
-      // Compute genuine skill match
+      // Match against candidate's ACTUAL skills only
       const matched = requiredSkills.filter(s => candidateSkillSet.has(normalizeSkill(s)));
-      const missing = requiredSkills.filter(s => !candidateSkillSet.has(normalizeSkill(s)));
-      const matchPct = requiredSkills.length > 0 ? Math.round((matched.length / requiredSkills.length) * 100) : 70;
+      const missing  = requiredSkills.filter(s => !candidateSkillSet.has(normalizeSkill(s)));
+      const matchPct = requiredSkills.length > 0 ? Math.round((matched.length / requiredSkills.length) * 100) : 0;
 
-      const stipend = isIntern ? "₹25,000 - ₹50,000 /month" : "₹8,50,000 - ₹18,00,000 /year";
-      const fullTimeSalary = isIntern ? "₹7.5 - 14.0 LPA" : "₹8.5 - 20.0 LPA";
+      // Skip jobs where the candidate has NO matching skills
+      if (matchPct === 0) return;
 
       const searchQuery = encodeURIComponent(`${title} ${comp.name} ${city}`);
-      const applyUrl = `https://www.google.com/search?q=${searchQuery}+jobs`;
-      const internshalaUrl = `https://internshala.com/internships/keywords-${encodeURIComponent(title)}-in-${encodeURIComponent(city)}`;
 
       jobs.push({
         id: `ind-job-${city.toLowerCase()}-${idx}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 3)}`,
@@ -246,27 +250,28 @@ export function generateLiveJobs(params = {}) {
         verified: true,
         officeHub: comp.hub,
         location: city,
-        isRemote: city === "Remote",
+        isRemote: city === 'Remote',
         type: roleType,
-        duration: isIntern ? "3-6 Months" : "Permanent",
-        stipend,
-        fullTimeSalary,
-        description: `Active opening for ${title} at ${comp.name}'s tech center in ${comp.hub}. Collaborate with engineering teams to develop scalable, high-availability production solutions.`,
+        duration: isIntern ? '3-6 Months' : 'Permanent',
+        stipend: isIntern ? '₹25,000 - ₹50,000 /month' : '₹8,50,000 - ₹18,00,000 /year',
+        fullTimeSalary: isIntern ? '₹7.5 - 14.0 LPA' : '₹8.5 - 20.0 LPA',
+        description: `Opening for ${title} at ${comp.name} in ${comp.hub}. Requires ${matched.slice(0, 3).join(', ')}${missing.length > 0 ? ` and more` : ''}.`,
         requiredSkills,
         matchedSkills: matched,
         missingSkills: missing,
         matchPercentage: matchPct,
-        openings: Math.floor(Math.random() * 4) + 2,
-        postedAgo: idx === 0 ? "Just now" : (idx === 1 ? "1 day ago" : "2 days ago"),
-        badge: idx === 0 ? "⭐ Top City Match" : "⚡ Actively Hiring",
+        openings: Math.floor(Math.random() * 3) + 1,
+        postedAgo: idx === 0 ? 'Just now' : '1 day ago',
+        badge: matchPct >= 70 ? '⭐ Strong Match' : '⚡ Skill Match',
         isInternshalaCertified: isIntern,
-        applyUrl,
-        internshalaUrl,
+        applyUrl: `https://www.google.com/search?q=${searchQuery}+jobs`,
+        internshalaUrl: `https://internshala.com/internships/keywords-${encodeURIComponent(title)}-in-${encodeURIComponent(city)}`,
         applicantCount: Math.floor(Math.random() * 30) + 10,
-        source: "Indian Tech Hub Aggregator"
+        source: 'Indian Tech Hub Aggregator'
       });
     });
   });
 
+  // Sort by highest skill match % — best matches first
   return jobs.sort((a, b) => b.matchPercentage - a.matchPercentage);
 }
