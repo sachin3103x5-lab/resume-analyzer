@@ -8,6 +8,7 @@ const path = require('path');
 const resumeRoutes = require('./routes/resumeRoutes');
 
 dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 if (![process.env.GEMINI_API_KEY, process.env.GOOGLE_GENAI_API_KEY, process.env.GOOGLE_API_KEY]
