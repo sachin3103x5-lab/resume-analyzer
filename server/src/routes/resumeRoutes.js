@@ -254,7 +254,7 @@ router.get('/roles', async (req, res) => {
 router.get('/history', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      const records = await AnalysisResult.find().sort({ createdAt: -1 }).limit(30);
+      const records = await CandidateProfile.find().sort({ createdAt: -1 }).limit(30);
       return res.json({ success: true, history: records, source: 'mongodb' });
     }
     return res.json({ success: true, history: inMemoryHistory, source: 'in-memory' });
@@ -271,9 +271,7 @@ router.delete('/history/:id', async (req, res) => {
   try {
     const { id } = req.params;
     if (mongoose.connection.readyState === 1) {
-      await AnalysisResult.deleteOne({
-        $or: [{ _id: id }, { analysisId: id }]
-      });
+      await CandidateProfile.deleteOne({ _id: id });
     }
     inMemoryHistory = inMemoryHistory.filter(h => (h._id && h._id.toString() !== id) && h.analysisId !== id);
     return res.json({ success: true, message: 'History record deleted successfully from MongoDB' });
@@ -289,7 +287,7 @@ router.delete('/history/:id', async (req, res) => {
 router.delete('/history', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      await AnalysisResult.deleteMany({});
+      await CandidateProfile.deleteMany({});
     }
     inMemoryHistory = [];
     return res.json({ success: true, message: 'All history records cleared from MongoDB' });
