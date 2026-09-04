@@ -75,7 +75,7 @@ Provide your expert evaluation in strictly valid JSON format with the following 
 }`;
 
       const response = await ai.models.generateContent({
-        model: process.env.GEMINI_MODEL || 'gemini-3.6-flash',
+        model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -97,7 +97,7 @@ Provide your expert evaluation in strictly valid JSON format with the following 
           throw new Error('Gemini returned an incomplete insight payload');
         }
         return {
-          source: `Gemini ${process.env.GEMINI_MODEL || 'gemini-3.6-flash'}`,
+          source: `Gemini ${process.env.GEMINI_MODEL || 'gemini-2.0-flash'}`,
           ...parsed
         };
       }

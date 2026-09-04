@@ -42,11 +42,13 @@ export default function AuditReportModal({ analysisResult, onClose }) {
   const breakdown = atsScore.breakdown;
 
   // Accurate candidate profile information
-  const candidateName = candidate?.name || 'Subhadeep Porey';
-  const candidateEmail = candidate?.email || `${candidateName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@gmail.com`;
-  const candidatePhone = candidate?.phone || '+91 62892 23021';
-  const auditRef = analysisResult.analysisId || analysisResult._id || `ATS-${candidateName.replace(/[^a-zA-Z]/g, '').slice(0, 4).toUpperCase()}-2026`;
+  const candidateName = candidate?.name && candidate.name.trim().length > 1 ? candidate.name.trim() : 'Candidate Profile';
+  const candidateEmail = candidate?.email || null;
+  const candidatePhone = candidate?.phone || null;
   const targetRole = targetJob?.title || 'Full Stack MERN Developer';
+
+  // Check if insights came from real Gemini API or the fallback synthesizer
+  const isGeminiVerified = geminiInsights?.source && geminiInsights.source.toLowerCase().includes('gemini') && !geminiInsights.source.toLowerCase().includes('synthesized');
 
   // Career match top 3
   const topRecs = careerRecommendations?.top3 || careerRecommendations?.top5 || [];
@@ -200,9 +202,20 @@ export default function AuditReportModal({ analysisResult, onClose }) {
               <h1 className="text-2xl sm:text-3xl font-extrabold text-[#263238] dark:text-white leading-tight">
                 {candidateName}
               </h1>
-              <p className="text-xs sm:text-sm text-[#717171] dark:text-[#E8F5E9]">
-                Target Industry Role: <strong className="text-[#4CAF4F] dark:text-[#FFC72C]">{targetRole}</strong> • Evaluation Date: {new Date().toLocaleDateString()}
-              </p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-xs sm:text-sm text-[#717171] dark:text-[#E8F5E9]">
+                  Target Industry Role: <strong className="text-[#4CAF4F] dark:text-[#FFC72C]">{targetRole}</strong> • Evaluation Date: {new Date().toLocaleDateString()}
+                </p>
+                {isGeminiVerified ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
+                    <Sparkles className="w-3 h-3" /> Gemini AI Verified
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
+                    <Brain className="w-3 h-3" /> NLP Synthesized
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="text-left sm:text-right bg-[#F5F7FA] dark:bg-[#083d1c] p-4 rounded-xl border border-[#E4E7EB] dark:border-[#1e8247] shrink-0 shadow-xs">
@@ -214,19 +227,23 @@ export default function AuditReportModal({ analysisResult, onClose }) {
             </div>
           </div>
 
-          {/* 2. Accurate Candidate & Document Specs (4-Column Grid) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          {/* 2. Candidate & Document Specs */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+            {candidateEmail && (
+              <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#115e30] border border-[#E4E7EB] dark:border-[#1e8247]">
+                <span className="text-[#89939E] dark:text-[#C8E6C9] block text-[10px] font-medium">Candidate Email</span>
+                <span className="font-bold text-[#263238] dark:text-white text-xs truncate block mt-0.5">{candidateEmail}</span>
+              </div>
+            )}
+            {candidatePhone && (
+              <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#115e30] border border-[#E4E7EB] dark:border-[#1e8247]">
+                <span className="text-[#89939E] dark:text-[#C8E6C9] block text-[10px] font-medium">Contact Phone</span>
+                <span className="font-bold text-[#263238] dark:text-white text-xs truncate block mt-0.5">{candidatePhone}</span>
+              </div>
+            )}
             <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#115e30] border border-[#E4E7EB] dark:border-[#1e8247]">
-              <span className="text-[#89939E] dark:text-[#C8E6C9] block text-[10px] font-medium">Candidate Email</span>
-              <span className="font-bold text-[#263238] dark:text-white text-xs truncate block mt-0.5">{candidateEmail}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#115e30] border border-[#E4E7EB] dark:border-[#1e8247]">
-              <span className="text-[#89939E] dark:text-[#C8E6C9] block text-[10px] font-medium">Contact Phone</span>
-              <span className="font-bold text-[#263238] dark:text-white text-xs truncate block mt-0.5">{candidatePhone}</span>
-            </div>
-            <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#115e30] border border-[#E4E7EB] dark:border-[#1e8247]">
-              <span className="text-[#89939E] dark:text-[#C8E6C9] block text-[10px] font-medium">Audit Reference ID</span>
-              <span className="font-mono font-bold text-[#4CAF4F] dark:text-[#FFC72C] text-xs block mt-0.5">{auditRef}</span>
+              <span className="text-[#89939E] dark:text-[#C8E6C9] block text-[10px] font-medium">Target Role</span>
+              <span className="font-bold text-[#4CAF4F] dark:text-[#FFC72C] text-xs truncate block mt-0.5">{targetRole}</span>
             </div>
             <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#115e30] border border-[#E4E7EB] dark:border-[#1e8247]">
               <span className="text-[#89939E] dark:text-[#C8E6C9] block text-[10px] font-medium">Verification Status</span>
@@ -241,9 +258,8 @@ export default function AuditReportModal({ analysisResult, onClose }) {
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-[#4D4D4D] dark:text-[#FFC72C] uppercase tracking-wider flex items-center gap-1.5">
                 <Cpu className="w-4 h-4 text-[#4CAF4F] dark:text-[#FFC72C]" />
-                <span>Multi-Factor ATS Compatibility Scoring (100% Explainable)</span>
+                <span>Multi-Factor ATS Compatibility Scoring</span>
               </h3>
-              <span className="text-[11px] font-mono text-[#717171] dark:text-white">Formula: ATS = 0.30·Sk + 0.35·Ss + 0.20·Sc + 0.15·Sf</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -327,14 +343,25 @@ export default function AuditReportModal({ analysisResult, onClose }) {
           {/* 5. Executive AI Recruiter Verdict & Critique */}
           {geminiInsights && (
             <div className="p-4 sm:p-5 rounded-xl bg-[#F5F7FA] dark:bg-[#083d1c] border border-[#E4E7EB] dark:border-[#1e8247] space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <span className="text-xs font-bold text-[#4D4D4D] dark:text-[#FFC72C] uppercase tracking-wide flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-[#4CAF4F] dark:text-[#FFC72C]" />
                   <span>Executive Recruiter Assessment & Hiring Verdict</span>
                 </span>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#E8F5E9] dark:bg-[#FAB818] text-[#2E7D32] dark:text-[#083d1c]">
-                  ★ {geminiInsights.recruiterHiringVerdict || 'Strong Contender'}
-                </span>
+                <div className="flex items-center gap-2">
+                  {isGeminiVerified ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
+                      <Sparkles className="w-3 h-3" /> {geminiInsights.source}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
+                      <Brain className="w-3 h-3" /> NLP Synthesized
+                    </span>
+                  )}
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#E8F5E9] dark:bg-[#FAB818] text-[#2E7D32] dark:text-[#083d1c]">
+                    ★ {geminiInsights.recruiterHiringVerdict || 'Strong Contender'}
+                  </span>
+                </div>
               </div>
               <p className="text-xs sm:text-sm text-[#263238] dark:text-white leading-relaxed">
                 {geminiInsights.executiveCritique || 'Candidate profile demonstrates strong technical foundation with clear potential for the target engineering role.'}
@@ -433,10 +460,10 @@ export default function AuditReportModal({ analysisResult, onClose }) {
             </div>
           )}
 
-          {/* 9. Official Institutional Sign-off Footer */}
+          {/* 9. Official Sign-off Footer */}
           <div className="pt-4 border-t border-[#E4E7EB] dark:border-[#1e8247] flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#89939E] dark:text-[#C8E6C9]">
-            <span>Mathematical Model: ATS = 0.30·Sk + 0.35·Ss + 0.20·Sc + 0.15·Sf</span>
-            <span className="font-mono text-[#4CAF4F] dark:text-[#FFC72C] font-semibold">Official Full-Detail Audit • ATSInsight.ai</span>
+            <span>Generated on {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+            <span className="font-mono text-[#4CAF4F] dark:text-[#FFC72C] font-semibold">Official ATS Audit Report • ATSInsight.ai</span>
           </div>
 
         </div>
