@@ -7,7 +7,7 @@ import GeminiInsightsCard from './components/GeminiInsightsCard';
 import SkillMatrix from './components/SkillMatrix';
 import PersonalizedFeedbackDeck from './components/PersonalizedFeedbackDeck';
 import CareerRecommendationsDeck from './components/CareerRecommendationsDeck';
-import InteractiveResumeOptimizer from './components/InteractiveResumeOptimizer';
+
 import AuditReportModal from './components/AuditReportModal';
 import HistoryModal from './components/HistoryModal';
 import { analyzeResumeApi, analyzeResumeFileApi } from './services/api';
@@ -170,12 +170,7 @@ export default function App() {
               userLocation={preferences?.preferredLocation || 'Bengaluru'}
             />
 
-            {/* 6. Interactive Optimizer */}
-            <InteractiveResumeOptimizer
-              initialText={resumeText}
-              targetRole={targetJobTitle}
-              onApplyOptimized={handleApplyOptimized}
-            />
+
 
           </div>
         )}
