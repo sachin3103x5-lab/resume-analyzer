@@ -1,0 +1,306 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* LIGHT MODE — NEXCENT SAAS PALETTE FROM PHOTO */
+  --bg-main: #F5F7FA;
+  --bg-surface: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-secondary: #F5F7FA;
+  --bg-input: #FFFFFF;
+
+  --brand-green: #4CAF4F;
+  --brand-green-hover: #388E3C;
+  --brand-green-light: #E8F5E9;
+
+  --text-heading: #4D4D4D;
+  --text-dark: #263238;
+  --text-body: #717171;
+  --text-muted: #89939E;
+  --text-placeholder: #A0AEC0;
+
+  --border-color: #E4E7EB;
+  --border-hover: #CBD5E1;
+
+  --btn-primary-bg: #4CAF4F;
+  --btn-primary-hover: #388E3C;
+  --btn-primary-text: #FFFFFF;
+
+  --shadow-card: 0 2px 12px rgba(171, 190, 209, 0.2);
+  --shadow-elevated: 0 4px 20px rgba(171, 190, 209, 0.35);
+}
+
+.dark {
+  /* DARK MODE — DEEP GREEN WITH SOFT MINT ACCENTS */
+  --bg-main: #0b1712;
+  --bg-surface: #13231a;
+  --bg-card: #182a20;
+  --bg-secondary: #13231a;
+  --bg-input: #1c3025;
+
+  --brand-green: #FFC72C;
+  --brand-green-hover: #FAB818;
+  --brand-green-light: rgba(255, 199, 44, 0.15);
+
+  --text-heading: #f0e8ca;
+  --text-dark: #f0e8ca;
+  --text-body: #b9c4b7;
+  --text-muted: #7e9483;
+  --text-placeholder: #8ca896;
+
+  --border-color: #31523c;
+  --border-hover: #FAB818;
+
+  --btn-primary-bg: #FAB818;
+  --btn-primary-hover: #FFC72C;
+  --btn-primary-text: #083d1c;
+
+  --shadow-card: 0 6px 20px -2px rgba(0, 0, 0, 0.25);
+  --shadow-elevated: 0 12px 30px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* Keep existing utility surfaces aligned with the reference palette. */
+.dark [class~="dark:bg-[#0b4d26]"] {
+  background-color: var(--bg-main) !important;
+}
+
+.dark [class~="dark:bg-[#083d1c]"] {
+  background-color: var(--bg-surface) !important;
+}
+
+.dark [class~="dark:bg-[#115e30]"] {
+  background-color: var(--bg-card) !important;
+}
+
+.dark [class~="bg-[#083d1c]"],
+.dark [class~="bg-[#0b4d26]"] {
+  background-color: var(--bg-main) !important;
+}
+
+.dark [class~="bg-[#115e30]"] {
+  background-color: var(--bg-card) !important;
+}
+
+.dark [class~="dark:hover:bg-[#16703b]"]:hover {
+  background-color: #244333 !important;
+}
+
+.dark [class~="dark:border-[#1e8247]"] {
+  border-color: var(--border-color) !important;
+}
+
+.dark [class~="border-[#1e8247]"] {
+  border-color: var(--border-color) !important;
+}
+
+.dark [class~="dark:text-white"] {
+  color: var(--text-heading) !important;
+}
+
+.dark [class~="dark:text-[#E8F5E9]"],
+.dark [class~="dark:text-[#C8E6C9]"] {
+  color: var(--text-body) !important;
+}
+
+/* Global Selection */
+::selection {
+  background-color: var(--brand-green) !important;
+  color: var(--btn-primary-text) !important;
+}
+
+::-moz-selection {
+  background-color: var(--brand-green) !important;
+  color: var(--btn-primary-text) !important;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-body);
+    overflow-x: hidden;
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--text-heading);
+  }
+
+  p,
+  span,
+  label,
+  div {
+    color: inherit;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+/* Inputs & Form Controls */
+input,
+textarea,
+select {
+  background-color: var(--bg-input);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-placeholder);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--brand-green);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(76, 175, 79, 0.2);
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #FAB818;
+  box-shadow: 0 0 0 3px rgba(250, 184, 24, 0.3);
+}
+
+/* Dropdowns */
+select option {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-dark) !important;
+  padding: 8px 12px;
+}
+
+/* Primary Action Button */
+.btn-primary {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text) !important;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: all 150ms ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-primary-hover);
+  transform: translateY(-1px);
+}
+
+/* Card Surfaces */
+.glass-panel,
+.glass-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  border-radius: 12px;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.glass-card:hover {
+  border-color: var(--brand-green);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-1px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-green);
+}
+
+/* Print — Strictly 1 Single Page A4 Document */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 6mm 8mm;
+  }
+
+  /* Hide header, navigation, and background elements */
+  header,
+  nav,
+  footer,
+  main,
+  #upload-panel,
+  #results-section,
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #263238 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Reset modal overlays so they don't clip */
+  .fixed.inset-0 {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .fixed.inset-0>div {
+    position: static !important;
+    display: block !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  #audit-print-root {
+    position: static !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    padding: 5mm !important;
+    margin: 0 !important;
+    background: #0b4d26 !important;
+    color: #ffffff !important;
+    border: 1.5px solid #1e8247 !important;
+    border-radius: 12px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: visible !important;
+  }
+}
