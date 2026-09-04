@@ -1,7 +1,7 @@
 # Netlify Configuration for Frontend Deployment
 [build]
   base = "client"
-  command = "npm install && npm run build"
+  command = "npm install --foreground-scripts && npm run build"
   publish = "dist"
 
 # SPA Routing: Redirect all client-side routes to index.html
