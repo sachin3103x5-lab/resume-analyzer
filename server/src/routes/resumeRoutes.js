@@ -9,7 +9,7 @@ const { generatePersonalizedFeedback } = require('../nlp/feedbackGenerator');
 const { recommendCareers } = require('../nlp/careerRecommender');
 const { generateGeminiInsights } = require('../nlp/geminiAnalyzer');
 const { JOB_ROLE_TEMPLATES } = require('../nlp/jobRoleTemplates');
-const AnalysisResult = require('../models/AnalysisResult');
+const CandidateProfile = require('../models/CandidateProfile');
 const JobRole = require('../models/JobRole');
 const mongoose = require('mongoose');
 
@@ -187,25 +187,23 @@ router.post('/analyze', upload.single('resumeFile'), async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    // Save to MongoDB database asynchronously if connected
+    // Save only candidate details to MongoDB
     try {
       if (mongoose.connection.readyState === 1) {
-        const savedDoc = await AnalysisResult.create({
-          analysisId: payload.analysisId,
-          candidate: payload.candidate,
-          targetJob: payload.targetJob,
-          atsScore: payload.atsScore,
-          resumeFeatures: payload.resumeFeatures,
-          extractedSkills: payload.extractedSkills,
-          extractedSkillNames: payload.extractedSkillNames,
-          skillGap: payload.skillGap,
-          feedback: payload.feedback,
-          careerRecommendations: payload.careerRecommendations,
-          geminiInsights: payload.geminiInsights,
-          resumeText: resumeText.slice(0, 50000)
-        });
-        payload._id = savedDoc._id;
-        console.log(`💾 Successfully stored resume evaluation in MongoDB (ID: ${savedDoc._id})`);
+        const candidate = resumeParsed.metadata;
+        // Only save if we have at least a name or email
+        if (candidate && (candidate.name || candidate.email)) {
+          await CandidateProfile.create({
+            name: candidate.name || null,
+            email: candidate.email || null,
+            phone: candidate.phone || null,
+            linkedin: candidate.linkedin || null,
+            github: candidate.github || null,
+            targetJobTitle: targetJobTitle || null,
+            atsScore: atsScoreResult.percentage || null
+          });
+          console.log(`💾 Saved candidate profile to MongoDB: ${candidate.name || candidate.email}`);
+        }
       }
     } catch (dbErr) {
       console.warn('MongoDB save note:', dbErr.message);
